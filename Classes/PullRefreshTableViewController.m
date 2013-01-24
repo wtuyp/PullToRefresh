@@ -32,44 +32,48 @@
 
 #define REFRESH_HEADER_HEIGHT 52.0f
 
+#define TEXT_PULL       @"下拉更新"
+#define TEXT_RELEASE    @"松开更新"
+#define TEXT_LOADING    @"更新中..."
+#define TEXT_TIME       @"上次更新"
 
 @implementation PullRefreshTableViewController
 
-@synthesize textPull, textRelease, textLoading, refreshHeaderView, refreshLabel, refreshArrow, refreshSpinner;
+@synthesize textPull, textRelease, textLoading, refreshHeaderView, refreshLabel, refreshTime,refreshArrow, refreshSpinner;
 
 - (id)initWithStyle:(UITableViewStyle)style {
-  self = [super initWithStyle:style];
-  if (self != nil) {
-    [self setupStrings];
-  }
-  return self;
+    self = [super initWithStyle:style];
+    if (self != nil) {
+        [self setupStrings];
+    }
+    return self;
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
-  self = [super initWithCoder:aDecoder];
-  if (self != nil) {
-    [self setupStrings];
-  }
-  return self;
+    self = [super initWithCoder:aDecoder];
+    if (self != nil) {
+        [self setupStrings];
+    }
+    return self;
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-  if (self != nil) {
-    [self setupStrings];
-  }
-  return self;
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self != nil) {
+        [self setupStrings];
+    }
+    return self;
 }
 
 - (void)viewDidLoad {
-  [super viewDidLoad];
-  [self addPullToRefreshHeader];
+    [super viewDidLoad];
+    [self addPullToRefreshHeader];
 }
 
 - (void)setupStrings{
-  textPull = [[NSString alloc] initWithString:@"Pull down to refresh..."];
-  textRelease = [[NSString alloc] initWithString:@"Release to refresh..."];
-  textLoading = [[NSString alloc] initWithString:@"Loading..."];
+    textPull = [[NSString alloc] initWithString:TEXT_PULL];
+    textRelease = [[NSString alloc] initWithString:TEXT_RELEASE];
+    textLoading = [[NSString alloc] initWithString:TEXT_LOADING];
 }
 
 - (void)addPullToRefreshHeader {
@@ -77,12 +81,17 @@
     refreshHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0 - REFRESH_HEADER_HEIGHT, winSize.size.width, REFRESH_HEADER_HEIGHT)];
     refreshHeaderView.backgroundColor = [UIColor clearColor];
 
-    refreshLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, winSize.size.width, REFRESH_HEADER_HEIGHT)];
+    refreshLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, winSize.size.width, REFRESH_HEADER_HEIGHT / 2)];
     refreshLabel.backgroundColor = [UIColor clearColor];
-    refreshLabel.font = [UIFont boldSystemFontOfSize:12.0];
+    refreshLabel.font = [UIFont systemFontOfSize:16.0];
     refreshLabel.textAlignment = UITextAlignmentCenter;
     refreshLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     
+    refreshTime = [[UILabel alloc] initWithFrame:CGRectMake(0, REFRESH_HEADER_HEIGHT / 2, winSize.size.width, REFRESH_HEADER_HEIGHT / 2)];
+    refreshTime.backgroundColor = [UIColor clearColor];
+    refreshTime.font = [UIFont systemFontOfSize:16.0];
+    refreshTime.textAlignment = UITextAlignmentCenter;
+    refreshTime.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 
     refreshArrow = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"arrow.png"]];
     refreshArrow.frame = CGRectMake(floorf((REFRESH_HEADER_HEIGHT - 27) / 2),
@@ -94,6 +103,7 @@
     refreshSpinner.hidesWhenStopped = YES;
 
     [refreshHeaderView addSubview:refreshLabel];
+    [refreshHeaderView addSubview:refreshTime];
     [refreshHeaderView addSubview:refreshArrow];
     [refreshHeaderView addSubview:refreshSpinner];
     refreshHeaderView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -110,8 +120,15 @@
         // Update the content inset, good for section headers
         if (scrollView.contentOffset.y > 0)
             self.tableView.contentInset = UIEdgeInsetsZero;
-        else if (scrollView.contentOffset.y >= -REFRESH_HEADER_HEIGHT)
+        else if (scrollView.contentOffset.y >= -REFRESH_HEADER_HEIGHT) {
             self.tableView.contentInset = UIEdgeInsetsMake(-scrollView.contentOffset.y, 0, 0, 0);
+            if (refreshTime.text == nil) {
+                refreshTime.text = [NSString stringWithFormat:@"%@: %@", TEXT_TIME,[self currentTime]];
+                [[NSUserDefaults standardUserDefaults] setObject:refreshTime.text forKey:@"PullRefreshTableView_LastRefresh"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+            }
+        }
+        
     } else if (isDragging && scrollView.contentOffset.y < 0) {
         // Update the arrow direction and label
         [UIView animateWithDuration:0.25 animations:^{
@@ -168,6 +185,10 @@
 - (void)stopLoadingComplete {
     // Reset the header
     refreshLabel.text = self.textPull;
+    refreshTime.text = [NSString stringWithFormat:@"%@: %@", TEXT_TIME,[self currentTime]];
+    [[NSUserDefaults standardUserDefaults] setObject:refreshTime.text forKey:@"PullRefreshTableView_LastRefresh"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
     refreshArrow.hidden = NO;
     [refreshSpinner stopAnimating];
 }
@@ -189,4 +210,12 @@
     [super dealloc];
 }
 
+//yyyy-MM-dd HH:mm:ss
+- (NSString *)currentTime {
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSString *time = [formatter stringFromDate:[NSDate date]];
+    [formatter release];
+    return time;
+}
 @end

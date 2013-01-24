@@ -21,6 +21,7 @@
 
     self.title = @"Pull to Refresh";
     items = [[NSMutableArray alloc] initWithObjects:@"What time is it?", nil];
+    [self startLoading];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
