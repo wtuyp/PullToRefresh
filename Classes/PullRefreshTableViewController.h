@@ -29,6 +29,12 @@
 
 #import <UIKit/UIKit.h>
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000
+#define LabelTextAlignmentCenter NSTextAlignmentCenter
+#define SUPPORT_IOS6
+#else
+#define LabelTextAlignmentCenter UITextAlignmentCenter
+#endif
 
 @interface PullRefreshTableViewController : UITableViewController {
     UIView *refreshHeaderView;

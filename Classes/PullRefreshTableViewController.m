@@ -84,13 +84,13 @@
     refreshLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, winSize.size.width, REFRESH_HEADER_HEIGHT / 2)];
     refreshLabel.backgroundColor = [UIColor clearColor];
     refreshLabel.font = [UIFont systemFontOfSize:16.0];
-    refreshLabel.textAlignment = UITextAlignmentCenter;
+    refreshLabel.textAlignment = LabelTextAlignmentCenter;
     refreshLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     
     refreshTime = [[UILabel alloc] initWithFrame:CGRectMake(0, REFRESH_HEADER_HEIGHT / 2, winSize.size.width, REFRESH_HEADER_HEIGHT / 2)];
     refreshTime.backgroundColor = [UIColor clearColor];
     refreshTime.font = [UIFont systemFontOfSize:16.0];
-    refreshTime.textAlignment = UITextAlignmentCenter;
+    refreshTime.textAlignment = LabelTextAlignmentCenter;
     refreshTime.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 
     refreshArrow = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"arrow.png"]];

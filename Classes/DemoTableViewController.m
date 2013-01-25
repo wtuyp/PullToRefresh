@@ -16,6 +16,17 @@
     return YES;
 }
 
+#ifdef SUPPORT_IOS6
+- (BOOL)shouldAutorotate
+{
+    return YES;
+}
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskAll;
+}
+#endif
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 
